@@ -1,20 +1,40 @@
+from os import system
 import cv2
 
 from ..backend.image import resize_image, convert_color_space, show_image
 from ..backend.image import BGR2RGB
 
-import time
 import spidev as SPI
 import SSD1306
 from PIL import Image # 调用相关库文件
 from PIL import ImageDraw
-from PIL import ImageFont
 RST = 19
 DC = 16
 bus = 0
 device = 0 # 树莓派管脚配置
+
 emotion = 'happy'
 value = 1
+
+from threading import Thread
+from ..backend.voice import ttf
+readyToPlay = False
+recordNum = 0
+def playCalendar():
+    vr = '/home/pi/1900012739/emo/assets/' # voice root
+    global recordNum
+    global readyToPlay
+    while True:
+        if readyToPlay:
+            system("mpg123 " + vr + "calendar.wav")
+            mode=input('[calendar]想听听今天的日程嘛？(1是 (default)否)')
+            if mode:
+                for i in range(recordNum):
+                    system('mpg123 ' + vr + 'vol'+str(i+1)+'.wav')
+                readyToPlay = False
+            else:
+                pass
+
 def expression(emotion): # (str)emotion
     disp = SSD1306.SSD1306(rst=RST,dc=DC,spi=SPI.SpiDev(bus,device))
     disp.begin()
@@ -22,19 +42,25 @@ def expression(emotion): # (str)emotion
     disp.display() # 初始化屏幕相关参数及清屏
     image = Image.new('RGB',(disp.width,disp.height),'black').convert('1')
     draw = ImageDraw.Draw(image)
-    ir = '/home/pi/1900012739/final/emo/assets/' # image root
+    ir = '/home/pi/1900012739/emo/assets/' # image root
     expression = Image.open(ir + 'saucer-eye.png').resize((50,50), Image.ANTIALIAS).convert('1')
+    global readyToPlay
     if emotion == 'neutral':
-        pass
+        readyToPlay = True
     elif emotion == 'happy':
         expression = Image.open(ir + 'happy.png').resize((50,50), Image.ANTIALIAS).convert('1')
+        readyToPlay = True
     elif emotion == 'angry':
         expression = Image.open(ir + 'pitiful.png').resize((50,50), Image.ANTIALIAS).convert('1')
-    elif emotion == 'sad' or emotion == 'fear':
+    elif emotion == 'sad':
+        expression == Image.open(ir + 'comforting.png').resize((50,50), Image.ANTIALIAS).convert('1')
+    elif emotion == 'fear':
         expression == Image.open(ir + 'comforting.png').resize((50,50), Image.ANTIALIAS).convert('1')
     draw.bitmap((40,10), expression, fill = 1)
     disp.image(image)
     disp.display()
+
+
     
 
 class Camera(object):
@@ -150,10 +176,15 @@ class VideoPlayer(object):
         until the user presses ``q`` inside the opened window.
         """
         self.camera.start()
-        
+        global recordNum
+        recordNum = ttf()
+        mythread = Thread(target=playCalendar)
+        mythread.setDaemon(True)
+        mythread.start()
         while True:
             output = self.step()
             label = output['boxes2D']
+#             print(readyToPlay)
             if len(label):
                 label = label[0]
                 emotion = label.class_name

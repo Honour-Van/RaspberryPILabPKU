@@ -3,13 +3,47 @@ import cv2
 from ..backend.image import resize_image, convert_color_space, show_image
 from ..backend.image import BGR2RGB
 
+import time
+import spidev as SPI
+import SSD1306
+from PIL import Image # 调用相关库文件
+from PIL import ImageDraw
+from PIL import ImageFont
+RST = 19
+DC = 16
+bus = 0
+device = 0 # 树莓派管脚配置
+emotion = 'happy'
+value = 1
+def expression(emotion): # (str)emotion
+    disp = SSD1306.SSD1306(rst=RST,dc=DC,spi=SPI.SpiDev(bus,device))
+    disp.begin()
+    disp.clear()
+    disp.display() # 初始化屏幕相关参数及清屏
+    image = Image.new('RGB',(disp.width,disp.height),'black').convert('1')
+    draw = ImageDraw.Draw(image)
+    ir = '/home/pi/1900012739/emo/assets/' # image root
+    expression = Image.open(ir + 'saucer-eye.png').resize((50,50), Image.ANTIALIAS).convert('1')
+    if emotion == 'neutral':
+        pass
+    elif emotion == 'happy':
+        expression = Image.open(ir + 'happy.png').resize((50,50), Image.ANTIALIAS).convert('1')
+    elif emotion == 'angry':
+        expression = Image.open(ir + 'pitiful.png').resize((50,50), Image.ANTIALIAS).convert('1')
+    elif emotion == 'sad':
+        expression == Image.open(ir + 'comforting.png').resize((50,50), Image.ANTIALIAS).convert('1')
+    elif emotion == 'fear':
+        expression == Image.open(ir + 'comforting.png').resize((50,50), Image.ANTIALIAS).convert('1')
+    draw.bitmap((40,10), expression, fill = 1)
+    disp.image(image)
+    disp.display()
+    
 
 class Camera(object):
     """Camera abstract class.
     By default this camera uses the openCV functionality.
     It can be inherited to overwrite methods in case another camera API exists.
     """
-
     def __init__(self, device_id=0, name='Camera'):
         # TODO load parameters from camera name. Use ``load`` method.
         self.device_id = device_id
@@ -118,13 +152,17 @@ class VideoPlayer(object):
         until the user presses ``q`` inside the opened window.
         """
         self.camera.start()
+        
         while True:
             output = self.step()
+            label = output['boxes2D']
+            if len(label):
+                label = label[0]
+                emotion = label.class_name
+                value = label.score
+                print(emotion, value)
+                expression(emotion)
             image = resize_image(output['image'], tuple(self.image_size))
-            labels = output['boxes2D']
-            if len(labels):
-                _label = labels[0]
-                print(_label.class_name, _label.score)
             show_image(image, 'inference', wait=False)
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
@@ -154,3 +192,4 @@ class VideoPlayer(object):
         self.stop()
         writer.release()
         cv2.destroyAllWindows()
+

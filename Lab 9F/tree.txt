@@ -1,0 +1,49 @@
+
+├── README.md
+├── SSD1306.py
+├── aip
+├── calendar.wav
+├── camera_backup.py
+├── python-sdk-master
+├── emo
+│   ├── abstract
+│   ├── applications.py
+│   ├── assets
+│   │   ├── 16k.wav
+│   │   ├── blink.png
+│   │   ├── calendar.txt
+│   │   ├── calendar.wav
+│   │   ├── comforting.png
+│   │   ├── happy.png
+│   │   ├── pitiful.png
+│   │   ├── pitiful_pre1.png
+│   │   ├── saucer-eye.png
+│   │   ├── temp.txt
+│   │   ├── temp.wav
+│   │   ├── vol1.wav
+│   │   ├── vol2.wav
+│   │   └── vol3.wav
+│   ├── backend
+│   │   ├── calendar.wav
+│   │   ├── camera.py
+│   │   ├── test1.txt
+│   │   ├── test1.wav
+│   │   └── voice.py
+│   ├── datasets
+│   ├── evaluation
+│   ├── models
+│   ├── optimization
+│   ├── pipelines
+│   └── processors
+├── hdf5_backup.py
+├── main.py
+├── mind.md
+├── ptt.py
+├── speech_calendar.py
+├── test
+└── log
+    ├── 2020-12-24-202914_1599x899_scrot.png
+    ├── 2020-12-24-203241_594x535_scrot.png
+    ├── 2020-12-24-205528_1133x314_scrot.png
+    ├── 2021-01-07-191746_636x501_scrot.png
+    └── 2021-01-07-193708_738x206_scrot.png

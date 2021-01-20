@@ -1,3 +1,5 @@
+from ..backend.voice import tts
+from threading import Thread
 from os import system
 import cv2
 
@@ -6,28 +8,28 @@ from ..backend.image import BGR2RGB
 
 import spidev as SPI
 import SSD1306
-from PIL import Image # 调用相关库文件
+from PIL import Image  # 调用相关库文件
 from PIL import ImageDraw
 RST = 19
 DC = 16
 bus = 0
-device = 0 # 树莓派管脚配置
+device = 0  # 树莓派管脚配置
 
 emotion = 'happy'
 value = 1
 
-from threading import Thread
-from ..backend.voice import ttf
 readyToPlay = False
 recordNum = 0
+
+
 def playCalendar():
-    vr = '/home/pi/1900012739/emo/assets/' # voice root
+    vr = '/home/pi/1900012739/emo/assets/'  # voice root
     global recordNum
     global readyToPlay
     while True:
         if readyToPlay:
             system("mpg123 " + vr + "calendar.wav")
-            mode=input('[calendar]想听听今天的日程嘛？(1是 (default)否)')
+            mode = input('[calendar]想听听今天的日程嘛？(1是 (default)否)')
             if mode:
                 for i in range(recordNum):
                     system('mpg123 ' + vr + 'vol'+str(i+1)+'.wav')
@@ -35,39 +37,44 @@ def playCalendar():
             else:
                 pass
 
-def expression(emotion): # (str)emotion
-    disp = SSD1306.SSD1306(rst=RST,dc=DC,spi=SPI.SpiDev(bus,device))
+
+def expression(emotion):  # (str)emotion
+    disp = SSD1306.SSD1306(rst=RST, dc=DC, spi=SPI.SpiDev(bus, device))
     disp.begin()
     disp.clear()
-    disp.display() # 初始化屏幕相关参数及清屏
-    image = Image.new('RGB',(disp.width,disp.height),'black').convert('1')
+    disp.display()  # 初始化屏幕相关参数及清屏
+    image = Image.new('RGB', (disp.width, disp.height), 'black').convert('1')
     draw = ImageDraw.Draw(image)
-    ir = '/home/pi/1900012739/emo/assets/' # image root
-    expression = Image.open(ir + 'saucer-eye.png').resize((50,50), Image.ANTIALIAS).convert('1')
+    ir = '/home/pi/1900012739/emo/assets/'  # image root
+    expression = Image.open(
+        ir + 'saucer-eye.png').resize((50, 50), Image.ANTIALIAS).convert('1')
     global readyToPlay
     if emotion == 'neutral':
         readyToPlay = True
     elif emotion == 'happy':
-        expression = Image.open(ir + 'happy.png').resize((50,50), Image.ANTIALIAS).convert('1')
+        expression = Image.open(
+            ir + 'happy.png').resize((50, 50), Image.ANTIALIAS).convert('1')
         readyToPlay = True
     elif emotion == 'angry':
-        expression = Image.open(ir + 'pitiful.png').resize((50,50), Image.ANTIALIAS).convert('1')
+        expression = Image.open(
+            ir + 'pitiful.png').resize((50, 50), Image.ANTIALIAS).convert('1')
     elif emotion == 'sad':
-        expression == Image.open(ir + 'comforting.png').resize((50,50), Image.ANTIALIAS).convert('1')
+        expression == Image.open(
+            ir + 'comforting.png').resize((50, 50), Image.ANTIALIAS).convert('1')
     elif emotion == 'fear':
-        expression == Image.open(ir + 'comforting.png').resize((50,50), Image.ANTIALIAS).convert('1')
-    draw.bitmap((40,10), expression, fill = 1)
+        expression == Image.open(
+            ir + 'comforting.png').resize((50, 50), Image.ANTIALIAS).convert('1')
+    draw.bitmap((40, 10), expression, fill=1)
     disp.image(image)
     disp.display()
 
-
-    
 
 class Camera(object):
     """Camera abstract class.
     By default this camera uses the openCV functionality.
     It can be inherited to overwrite methods in case another camera API exists.
     """
+
     def __init__(self, device_id=0, name='Camera'):
         # TODO load parameters from camera name. Use ``load`` method.
         self.device_id = device_id
@@ -177,7 +184,7 @@ class VideoPlayer(object):
         """
         self.camera.start()
         global recordNum
-        recordNum = ttf()
+        recordNum = tts()
         mythread = Thread(target=playCalendar)
         mythread.setDaemon(True)
         mythread.start()

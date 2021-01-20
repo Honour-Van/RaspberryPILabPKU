@@ -4,7 +4,7 @@ API_KEY = 'sluLEi1xoOTdgC7hU570Pebl'
 SECRET_KEY = 'YmQxWR9Cn5rex5LQbrwl8DGr3BbkMYTg'
 
 
-def ttf():  # return the number of sentences.
+def tts():  # return the number of sentences.
     client = AipSpeech(APP_ID, API_KEY, SECRET_KEY)
     content = []
     with open('./test.txt', 'r', encoding='UTF-8') as f:
@@ -24,4 +24,4 @@ def ttf():  # return the number of sentences.
 
 
 if __name__ == '__main__':
-    ttf()
+    tts()
